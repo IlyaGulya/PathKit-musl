@@ -599,13 +599,22 @@ extension Path {
       free(cPattern)
     }
 
-    let flags = GLOB_TILDE | GLOB_BRACE | GLOB_MARK
+    #if os(Linux)
+      #if canImport(Musl)
+        let flags = GLOB_TILDE | GLOB_MARK
+      #else
+        let flags = GLOB_TILDE | GLOB_BRACE | GLOB_MARK
+      #endif
+    #else
+      let flags = GLOB_TILDE | GLOB_BRACE | GLOB_MARK
+    #endif
+
     if system_glob(cPattern, flags, nil, &gt) == 0 {
-#if os(Linux)
-      let matchc = gt.gl_pathc
-#else
-      let matchc = gt.gl_matchc
-#endif
+      #if os(Linux)
+        let matchc = gt.gl_pathc
+      #else
+        let matchc = gt.gl_matchc
+      #endif
       return (0..<Int(matchc)).compactMap { index in
         if let path = String(validatingUTF8: gt.gl_pathv[index]!) {
           return Path(path)
