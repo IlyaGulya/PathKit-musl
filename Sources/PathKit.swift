@@ -1,13 +1,16 @@
 // PathKit - Effortless path operations
 
 #if os(Linux)
-import Glibc
-
-let system_glob = Glibc.glob
+    #if canImport(Musl)
+        import Musl
+        let system_glob = Musl.glob
+    #else
+        import Glibc
+        let system_glob = Glibc.glob
+    #endif
 #else
-import Darwin
-
-let system_glob = Darwin.glob
+    import Darwin
+    let system_glob = Darwin.glob
 #endif
 
 import Foundation
